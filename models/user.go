@@ -16,16 +16,16 @@ type User struct {
 var JwtKey = []byte("your_secret_key")
 
 type Claims struct {
-	Username string `json:"username"`
+	UserID string `json:"user_id"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(username string) (string, error) {
+func GenerateJWT(userID string) (string, error) {
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &Claims{
-		Username: username,
+		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
