@@ -37,14 +37,24 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	userCollection = config.DB.Database("todo_api").Collection("users")
+
+	var userExist models.User
+	err := userCollection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&userExist)
+	if err == nil {
+		http.Error(w, "username "+userExist.Username+" already taken", http.StatusAlreadyReported)
+		return
+	}
+
 	user.ID = primitive.NewObjectID()
-	_, err := userCollection.InsertOne(ctx, user)
+	_, err = userCollection.InsertOne(ctx, user)
 	if err != nil {
 		http.Error(w, "Could not create user", http.StatusInternalServerError)
 		return
 	}
 
 	token, _ := models.GenerateJWT(user.Username)
+
 	w.Header().Set("Context-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }

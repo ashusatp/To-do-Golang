@@ -32,5 +32,8 @@ func ConnectDB() {
 }
 
 func GetCollection(collectionName string) *mongo.Collection {
+	if DB == nil {
+		return nil
+	}
 	return DB.Database("todo_api").Collection(collectionName)
 }

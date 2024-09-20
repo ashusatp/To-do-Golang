@@ -13,15 +13,15 @@ type User struct {
 	Password string             `bson:"password,omitempty"`
 }
 
-var JwtKey = []byte("your_secret_key")
+var JwtKey = []byte("your_secret_key") // Replace with your actual secret key
 
+// Claims defines the structure of the JWT payload
 type Claims struct {
 	UserID string `json:"user_id"`
 	jwt.StandardClaims
 }
 
 func GenerateJWT(userID string) (string, error) {
-
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &Claims{
@@ -31,6 +31,14 @@ func GenerateJWT(userID string) (string, error) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-	return token.SignedString(JwtKey)
+	// Use HS256 instead of ES256
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign the token with your secret key
+	signedToken, err := token.SignedString(JwtKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }

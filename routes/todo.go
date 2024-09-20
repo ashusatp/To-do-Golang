@@ -16,6 +16,7 @@ func TodoRoutes(router *mux.Router) {
 	todoRouter.HandleFunc("", controllers.CreateTodo).Methods("POST")
 	todoRouter.HandleFunc("", controllers.GetTodos).Methods("GET")
 	todoRouter.HandleFunc("", controllers.UpdateTodo).Methods("PUT")
+	todoRouter.HandleFunc("/status", controllers.UpdateTodoStatus).Methods("PUT")
 	todoRouter.HandleFunc("", controllers.DeleteTodo).Methods("DELETE")
 
 }

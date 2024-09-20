@@ -22,6 +22,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 		}
 
 		tokenStr := strings.Split(authHeader, " ")[1]
+
 		claims := &models.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {

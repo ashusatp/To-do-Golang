@@ -34,6 +34,8 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	todoCollection = config.DB.Database("todo_api").Collection("todos")
+
 	todo.ID = primitive.NewObjectID()
 	userID, err := getUserFromContext(r)
 	if err != nil {
@@ -72,6 +74,8 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
+
+	todoCollection = config.DB.Database("todo_api").Collection("todos")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -125,6 +129,8 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	todoCollection = config.DB.Database("todo_api").Collection("todos")
+
 	todoID := r.URL.Query().Get("id")
 	objID, err := primitive.ObjectIDFromHex(todoID)
 	if err != nil {
@@ -170,6 +176,61 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func UpdateTodoStatus(w http.ResponseWriter, r *http.Request) {
+
+	todoCollection = config.DB.Database("todo_api").Collection("todos")
+
+	todoID := r.URL.Query().Get("id")
+	objID, err := primitive.ObjectIDFromHex(todoID)
+	if err != nil {
+		log.Printf("Invalid todo ID: %v", err)
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := getUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var todoExist models.Todo
+	err = todoCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&todoExist)
+	if err != nil {
+		http.Error(w, "Could not update todo", http.StatusInternalServerError)
+		return
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"done": !todoExist.Done,
+		},
+	}
+
+	filter := bson.M{"_id": objID, "user_id": userID}
+
+	result, err := todoCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("Error updating todo: %v", err)
+		http.Error(w, "Could not update todo", http.StatusInternalServerError)
+		return
+	}
+
+	if result.MatchedCount == 0 {
+		http.Error(w, "Todo not found or unauthorized", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Context-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Todo updated successfully",
+	})
+}
+
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	todoID := r.URL.Query().Get("id")
 	objID, err := primitive.ObjectIDFromHex(todoID)
@@ -177,6 +238,8 @@ func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
 	}
+
+	todoCollection = config.DB.Database("todo_api").Collection("todos")
 
 	userID, err := getUserFromContext(r)
 	if err != nil {
