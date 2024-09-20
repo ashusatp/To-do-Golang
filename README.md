@@ -15,7 +15,7 @@ This project is a RESTful API for managing a todo list, allowing users to regist
 - **JWT**: For secure token-based authentication.
   
 ## Project Structure
-. ├── config/ # Configuration files for DB
+├── config/ # Configuration files for DB
 ├── controllers/ # Request handlers for API endpoints
 ├── models/ # Data models for Users and Todos
 ├── routes/ # API routes definitions
