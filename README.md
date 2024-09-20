@@ -15,14 +15,8 @@ This project is a RESTful API for managing a todo list, allowing users to regist
 - **JWT**: For secure token-based authentication.
   
 ## Project Structure
-├── config/ # Configuration files for DB
-├── controllers/ # Request handlers for API endpoints
-├── models/ # Data models for Users and Todos
-├── routes/ # API routes definitions
-├── middleware/ # Middleware for authentication
-├── main.go # Entry point of the application
-├── go.mod # Go module file
-└── README.md # Documentation
+![image](https://github.com/user-attachments/assets/d5852879-7b05-4d84-a1a2-93864be668d0)
+
 
 ## API Endpoints
 ### Authentication
